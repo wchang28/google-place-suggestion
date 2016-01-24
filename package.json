@@ -1,0 +1,28 @@
+{
+  "name": "google-place-suggestion",
+  "version": "1.0.0",
+  "description": "Google Place Suggestion Engine",
+  "author": {
+    "name": "Wen Chang",
+    "email": "wchang28@hotmail.com"
+  },
+  "main": "app.js",
+  "license": "MIT",
+  "scripts": {
+    "bundle": "browserify -t [ babelify --presets [ react es2015] ] .\\browserify\\main.js -o .\\public\\js\\bundle.js",
+    "start": "node app.js",
+	"test": "node ./test/test_query.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wchang28/app_template"
+  },
+  "dependencies": {
+    "body-parser": "^1.14.1",
+    "express": "^4.13.3",
+	"jquery-no-dom": "git+https://github.com/wchang28/jquery-no-dom.git",
+    "node-uuid": "^1.4.7",
+    "promise": "^7.1.1",
+    "sse-express": "git+https://github.com/wchang28/sse-express.git"
+  }
+}

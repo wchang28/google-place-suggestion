@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Place Autocomplete Address Form</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+    </style>
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
+	<link rel="stylesheet" href="/bower_components/w3-css/css/w3.css">
+    <style>
+      #locationField, #controls {
+        position: relative;
+        width: 480px;
+      }
+      #autocomplete {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 99%;
+      }
+      .label {
+        text-align: right;
+        font-weight: bold;
+        width: 100px;
+        color: #303030;
+      }
+      #address {
+        border: 1px solid #000090;
+        background-color: #f0f0ff;
+        width: 480px;
+        padding-right: 2px;
+      }
+      #address td {
+        font-size: 10pt;
+      }
+      .field {
+        width: 99%;
+      }
+      .slimField {
+        width: 80px;
+      }
+      .wideField {
+        width: 200px;
+      }
+      #locationField {
+        height: 20px;
+        margin-bottom: 2px;
+      }
+    </style>
+	<script src="/bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="js/promise-done-7.0.4.min.js"></script>
+	<script src="/bower_components/underscore/underscore-min.js"></script>
+	<script src="/bower_components/eventsource-polyfill/dist/eventsource.min.js"></script>
+  </head>
+
+  <body>
+    <div id="locationField">
+      <!-- <input id="autocomplete" placeholder="Enter your address" onFocus="geolocate()" type="text" class="w3-input w3-border"></input> -->
+    </div>
+
+<script>
+// This example displays an address form, using the autocomplete feature
+// of the Google Places API to help users fill in the information.
+
+var handlersGetter = (function() {
+	var __readyResolver = null;
+	var TIMEOUT_MS = 5000;
+	var TIMEOUT_MSG = 'worker readiness timeout';
+	function getOnWorkerIdReceivedHandler(OnDone) {
+		return (function (workerId) {
+			if (!__readyResolver) {	// receive workerId first
+				var p = new Promise(function(resolve, reject) {
+					__readyResolver = resolve;
+					setTimeout(function(){
+						reject(TIMEOUT_MSG);
+					},TIMEOUT_MS);
+				});
+				p.then(function() {	// receive from 2)
+					OnDone(null, workerId);
+				}).catch(function(err){
+					OnDone(err, null);
+				});
+			} else	// worker internal initialization completed first
+				__readyResolver(workerId);	// 1)
+		});
+	}
+	function getOnWorkerInternalInitializationCompleteHandler(OnDone) {
+		return (function () {
+			if (!__readyResolver) {	// worker internal initialization completed first
+				var p = new Promise(function(resolve, reject) {
+					__readyResolver = resolve;
+					setTimeout(function(){
+						reject(TIMEOUT_MSG);
+					},TIMEOUT_MS);
+				});
+				p.then(function(workerId) {	// receive from 1)
+					OnDone(null, workerId);	
+				}).catch(function(err){
+					OnDone(err, null);
+				});
+			} else	// receive workerId first
+				__readyResolver();	// 2)
+		});
+	}
+	return {
+		getOnWorkerIdReceivedHandler: getOnWorkerIdReceivedHandler
+		,getOnWorkerInternalInitializationCompleteHandler: getOnWorkerInternalInitializationCompleteHandler
+	};
+})();
+
+var __workerId = null;
+
+function onWorkerReady(err, workerId) {
+	if (err)
+		alert('Error: ' + err.toString());
+	else {
+		__workerId = workerId;
+		// TODO: display workerId
+		console.log('worker is ready to receive query from the server :-)');
+		var jqxhr = $.getJSON("/worker_api/worker_ready", {workerId: workerId}, function() {
+			//console.log( "success" );
+		}).done(function() {
+		}).fail(function() {
+		}).always(function() {
+		});
+	}
+}
+
+function returnQuery(query, suggestions) {
+	var q = {
+		workerId: __workerId
+		,queryId: query.id
+		,suggestions: suggestions
+	};
+	$.ajax('/worker_api/query_result', {
+		data : JSON.stringify(q),
+		contentType : 'application/json',
+		type : 'POST'
+		}
+	,function() {
+		console.log( "success" );
+	});
+}
+
+var onWorkerIdReceived = handlersGetter.getOnWorkerIdReceivedHandler(onWorkerReady);
+var onWorkerInternalInitializationComplete = handlersGetter.getOnWorkerInternalInitializationCompleteHandler(onWorkerReady);
+
+var source = new EventSource("/worker_api/event_stream");
+source.onmessage = function(event) {
+	var o = JSON.parse(event.data);
+    if (o.event === 'WORKER_ID') {
+		console.log('worker received an id of ' + o.id + ' from the server');
+		onWorkerIdReceived(o.id);
+	}
+	else if (o.event === 'QUERY') {
+		console.log('I got a query !!!');
+		var start = new Date().getTime();
+		var query = o.query;
+		var p = new Promise(function(resolve, reject) {
+			query.resolve = resolve;
+			setTimeout(function() {
+				reject('query timeout');
+			}, 1000);
+		});
+		p.then(function(suggestions) {
+			console.log(JSON.stringify(suggestions));
+			console.log('query completed');
+			var end = new Date().getTime();
+			console.log('duration (ms):' +(end-start).toString());
+			returnQuery(query, suggestions);
+		}).catch(function(err) {
+			returnQuery(query, []);
+		});
+		worker.runQuery(query);
+	}
+};
+
+function getGeoLocateHandler(autocomplete) {
+// [START region_geolocation]
+// Bias the autocomplete object to the user's geographical location,
+// as supplied by the browser's 'navigator.geolocation' object.
+function geolocate() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var geolocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      var circle = new google.maps.Circle({
+        center: geolocation,
+        radius: position.coords.accuracy
+      });
+      autocomplete.setBounds(circle.getBounds());
+    });
+  }
+}
+// [END region_geolocation]
+return geolocate;
+}
+
+function SuggestionsWorker(instance_id) {
+	var me = this;
+	
+	// event simulation
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	function simulate(element, eventName)
+	{
+		var options = extend(defaultOptions, arguments[2] || {});
+		var oEvent, eventType = null;
+
+		for (var name in eventMatchers)
+		{
+			if (eventMatchers[name].test(eventName)) { eventType = name; break; }
+		}
+
+		if (!eventType)
+			throw new SyntaxError('Only HTMLEvents and MouseEvents interfaces are supported');
+
+		if (document.createEvent)
+		{
+			oEvent = document.createEvent(eventType);
+			if (eventType == 'HTMLEvents')
+			{
+				oEvent.initEvent(eventName, options.bubbles, options.cancelable);
+			}
+			else
+			{
+				oEvent.initMouseEvent(eventName, options.bubbles, options.cancelable, document.defaultView,
+				options.button, options.pointerX, options.pointerY, options.pointerX, options.pointerY,
+				options.ctrlKey, options.altKey, options.shiftKey, options.metaKey, options.button, element);
+			}
+			element.dispatchEvent(oEvent);
+		}
+		else
+		{
+			options.clientX = options.pointerX;
+			options.clientY = options.pointerY;
+			var evt = document.createEventObject();
+			oEvent = extend(evt, options);
+			element.fireEvent('on' + eventName, oEvent);
+		}
+		return element;
+	}
+
+	function extend(destination, source) {
+		for (var property in source)
+		  destination[property] = source[property];
+		return destination;
+	}
+
+	var eventMatchers = {
+		'HTMLEvents': /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/,
+		'MouseEvents': /^(?:click|dblclick|mouse(?:down|up|over|move|out))$/
+	}
+	var defaultOptions = {
+		pointerX: 0,
+		pointerY: 0,
+		button: 0,
+		ctrlKey: false,
+		altKey: false,
+		shiftKey: false,
+		metaKey: false,
+		bubbles: true,
+		cancelable: true
+	}
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	function simulateFocus(element) {simulate(element, 'focus');}
+	
+	function copyArray(src) {
+		var ret = [];
+		for (var i = 0; i < src.length; i++)
+			ret.push(src[i]);
+		return ret;
+	}
+	function getAllPacContainers() {return copyArray(document.getElementsByClassName('pac-container'));}
+	
+	function createInputControl(instance_id) {
+		var container = document.getElementById('locationField');
+		var inputElement = document.createElement("input");
+		inputElement.type = "text";
+		inputElement.id = instance_id;
+		container.appendChild(inputElement); // put it into the DOM	
+		return inputElement;
+	}
+	
+	var __detectingPacContainer = true;
+	var __pacContainers = getAllPacContainers();
+	this.instance_id = instance_id;
+	this.inputControl = createInputControl(instance_id);
+	this.autocomplete = new google.maps.places.Autocomplete(this.inputControl, {types: ['geocode']});
+	this.inputControl.onfocus = getGeoLocateHandler(this.autocomplete);
+
+	// TODO:
+	function getInnerAddress(element) {
+		return element.innerText;
+		//return element.innerHTML;
+	}
+	  	
+	function getPacContianerDOMSubtreeModifiedListener(onSuggestions) {
+		return (function(e) {
+			//console.log(pacContainer.innerHTML);
+			var items = me.pacContainer.getElementsByClassName('pac-item');
+			var suggestions = [];
+			for (var i = 0; i < items.length; i++)
+				suggestions.push(getInnerAddress(items[i]));
+			console.log('pacContainer DOMSubtreeModified(' + items.length + ')');
+			onSuggestions(suggestions);
+		});
+	}
+  
+	var docDOMSubtreeModifiedListener = function (e) {
+		//console.log(e.currentTarget.innerHTML); 
+		if (__detectingPacContainer) {
+			var ctrls = getAllPacContainers();
+			//console.log('I am here (' + ctrls.length + ','+ __pacContainers.length + ")");
+			if (ctrls.length === __pacContainers.length+1) {
+				var diff = _.difference(ctrls, __pacContainers);
+				//console.log('diff.length=' + diff.length);
+				var pacContainer = diff[0];
+				me.pacContainer = pacContainer;
+				document.body.removeEventListener(docDOMSubtreeModifiedListener);
+				pacContainer.addEventListener('DOMSubtreeModified', getPacContianerDOMSubtreeModifiedListener(function(suggestions) {
+					if (me.query) me.suggestions = suggestions;
+				}));
+				__pacContainers = ctrls;
+				__detectingPacContainer = false;
+				if (typeof me.onInitialized === 'function') me.onInitialized();
+			}
+		}
+	}
+	
+	document.body.addEventListener('DOMSubtreeModified', docDOMSubtreeModifiedListener);
+  
+	this.triggerQuery = function (queryString) {
+		me.inputControl.value = queryString;
+		simulateFocus(me.inputControl);
+	};
+	this.runQuery = function (query) {
+		me.query = query;
+		me.triggerQuery(query.queryString);
+		setTimeout(function() {
+			console.log('> suggestions inspection pulling timeout <');
+			me.triggerQuery(' ');
+			if (me.query) {
+				var suggestions = (me.suggestions ? me.suggestions: []);
+				me.query.resolve(suggestions);	// resolve the query
+				me.query = null;
+				me.suggestions = null;
+			}
+		}, 500);
+	};
+	this.isRunningQuery = function() {return (me.query ? true : false);};
+}
+
+var worker = null;
+
+function initAutocomplete() {
+	// Create the autocomplete object, restricting the search to geographical
+	// location types.
+  	worker = new SuggestionsWorker('instance_1');
+	worker.onInitialized = function() {
+		console.log('worker initialized');
+		onWorkerInternalInitializationComplete();
+	};
+	/*
+	setTimeout(function(){
+		console.log('triggering query');
+		var start = new Date().getTime();
+		var query = {
+			queryString: '9106 Whitney Ave'
+			,id: 'xxxyyyzzz'
+		};
+		var p = new Promise(function(resolve, reject) {
+			query.resolve = resolve;
+			setTimeout(function() {
+				reject('query timeout');
+			}, 1000);
+		});
+		p.then(function(suggestions) {
+			console.log(JSON.stringify(suggestions));
+			console.log('query completed');
+			var end = new Date().getTime();
+			console.log('duration (ms):' +(end-start).toString());
+			//ack({suggestions: suggestions});
+		}).catch(function(err) {
+			//ack({suggestions: []});
+		});
+		worker.runQuery(query);
+	}, 3000);
+	*/
+}
+    </script>
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCD-BxQL5z696UwzqrFzRbYKgmDqrSsQtI&signed_in=true&libraries=places&callback=initAutocomplete"
+        async defer></script> -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCD-BxQL5z696UwzqrFzRbYKgmDqrSsQtI&signed_in=true&libraries=places&callback=initAutocomplete"
+        async defer></script>
+  </body>
+</html>
