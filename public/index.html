@@ -73,18 +73,17 @@
 
 var __workerId = null;
 var __startupInitializationCompleted = false;
+var worker = null;
 
 var handlersGetter = (function() {
 	var __readyResolver = null;
 	var TIMEOUT_MS = 5000;
 	var TIMEOUT_MSG = 'worker readiness timeout';
 	function getOnWorkerIdReceivedHandler(OnDone) {
-		if (__startupInitializationCompleted) {
-			return (function(workerId) {
+		return (function (workerId) {
+			if (__startupInitializationCompleted)
 				OnDone(null, workerId);
-			});
-		} else {
-			return (function (workerId) {
+			else {
 				if (!__readyResolver) {	// receive workerId first
 					var p = new Promise(function(resolve, reject) {
 						__readyResolver = resolve;
@@ -103,8 +102,8 @@ var handlersGetter = (function() {
 					});
 				} else	// worker internal initialization completed first
 					__readyResolver(workerId);	// 1)
-			});
-		}
+			}
+		});
 	}
 	function getOnWorkerInternalInitializationCompleteHandler(OnDone) {
 		return (function () {
@@ -376,8 +375,6 @@ function SuggestionsWorker(instance_id) {
 	};
 	this.isRunningQuery = function() {return (me.query ? true : false);};
 }
-
-var worker = null;
 
 function initAutocomplete() {
 	// Create the autocomplete object, restricting the search to geographical
