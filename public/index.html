@@ -71,27 +71,40 @@
 // This example displays an address form, using the autocomplete feature
 // of the Google Places API to help users fill in the information.
 
+var __workerId = null;
+var __startupInitializationCompleted = false;
+
 var handlersGetter = (function() {
 	var __readyResolver = null;
 	var TIMEOUT_MS = 5000;
 	var TIMEOUT_MSG = 'worker readiness timeout';
 	function getOnWorkerIdReceivedHandler(OnDone) {
-		return (function (workerId) {
-			if (!__readyResolver) {	// receive workerId first
-				var p = new Promise(function(resolve, reject) {
-					__readyResolver = resolve;
-					setTimeout(function(){
-						reject(TIMEOUT_MSG);
-					},TIMEOUT_MS);
-				});
-				p.then(function() {	// receive from 2)
-					OnDone(null, workerId);
-				}).catch(function(err){
-					OnDone(err, null);
-				});
-			} else	// worker internal initialization completed first
-				__readyResolver(workerId);	// 1)
-		});
+		if (__startupInitializationCompleted) {
+			return (function(workerId) {
+				OnDone(null, workerId);
+			});
+		} else {
+			return (function (workerId) {
+				if (!__readyResolver) {	// receive workerId first
+					var p = new Promise(function(resolve, reject) {
+						__readyResolver = resolve;
+						setTimeout(function(){
+							reject(TIMEOUT_MSG);
+						},TIMEOUT_MS);
+					});
+					p.then(function() {	// receive from 2)
+						OnDone(null, workerId);
+						__readyResolver = null;
+						__startupInitializationCompleted = true;
+					}).catch(function(err){
+						OnDone(err, null);
+						__readyResolver = null;
+						__startupInitializationCompleted = true;
+					});
+				} else	// worker internal initialization completed first
+					__readyResolver(workerId);	// 1)
+			});
+		}
 	}
 	function getOnWorkerInternalInitializationCompleteHandler(OnDone) {
 		return (function () {
@@ -103,9 +116,13 @@ var handlersGetter = (function() {
 					},TIMEOUT_MS);
 				});
 				p.then(function(workerId) {	// receive from 1)
-					OnDone(null, workerId);	
+					OnDone(null, workerId);
+					__readyResolver = null;
+					__startupInitializationCompleted = true;
 				}).catch(function(err){
 					OnDone(err, null);
+					__readyResolver = null;
+					__startupInitializationCompleted = true;
 				});
 			} else	// receive workerId first
 				__readyResolver();	// 2)
@@ -116,8 +133,6 @@ var handlersGetter = (function() {
 		,getOnWorkerInternalInitializationCompleteHandler: getOnWorkerInternalInitializationCompleteHandler
 	};
 })();
-
-var __workerId = null;
 
 function onWorkerReady(err, workerId) {
 	if (err)
