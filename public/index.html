@@ -183,7 +183,7 @@ source.onmessage = function(event) {
 			query.resolve = resolve;
 			setTimeout(function() {
 				reject('query timeout');
-			}, 1000);
+			}, 1500);
 		});
 		p.then(function(suggestions) {
 			console.log(JSON.stringify(suggestions));
@@ -344,7 +344,12 @@ function SuggestionsWorker(instance_id) {
 				me.pacContainer = pacContainer;
 				document.body.removeEventListener(docDOMSubtreeModifiedListener);
 				pacContainer.addEventListener('DOMSubtreeModified', getPacContianerDOMSubtreeModifiedListener(function(suggestions) {
-					if (me.query) me.suggestions = suggestions;
+					if (me.query) { 
+						me.suggestions = suggestions;
+						if (suggestions.length >= 5) {
+							me.resolveQuery(suggestions);
+						}
+					}
 				}));
 				__pacContainers = ctrls;
 				__detectingPacContainer = false;
@@ -359,17 +364,20 @@ function SuggestionsWorker(instance_id) {
 		me.inputControl.value = queryString;
 		simulateFocus(me.inputControl);
 	};
+	this.resolveQuery = function(suggestions) {
+		me.triggerQuery(' ');
+		me.query.resolve(suggestions);	// resolve the query
+		me.query = null;
+		me.suggestions = null;
+	};
 	this.runQuery = function (query) {
 		me.query = query;
 		me.triggerQuery(query.queryString);
 		setTimeout(function() {
 			console.log('> suggestions inspection pulling timeout <');
-			me.triggerQuery(' ');
 			if (me.query) {
 				var suggestions = (me.suggestions ? me.suggestions: []);
-				me.query.resolve(suggestions);	// resolve the query
-				me.query = null;
-				me.suggestions = null;
+				me.resolveQuery(suggestions);
 			}
 		}, 500);
 	};
