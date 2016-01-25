@@ -316,10 +316,11 @@ function SuggestionsWorker(instance_id) {
 	this.autocomplete = new google.maps.places.Autocomplete(this.inputControl, {types: ['geocode']});
 	this.inputControl.onfocus = getGeoLocateHandler(this.autocomplete);
 
-	// TODO:
-	function getInnerAddress(element) {
-		return element.innerText;
-		//return element.innerHTML;
+	function getInnerAddress(parent) {
+		var l = parent.childNodes;
+		return l[1].innerText + ' ' + l[2].innerText;
+		//return parent.innerText;
+		//return parent.innerHTML;
 	}
 	  	
 	function getPacContianerDOMSubtreeModifiedListener(onSuggestions) {
