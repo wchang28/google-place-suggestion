@@ -57,6 +57,7 @@
       }
     </style>
 	<script src="/bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="js/promise-7.0.4.min.js"></script>
 	<script src="js/promise-done-7.0.4.min.js"></script>
 	<script src="/bower_components/underscore/underscore-min.js"></script>
 	<script src="/bower_components/eventsource-polyfill/dist/eventsource.min.js"></script>
@@ -318,8 +319,8 @@ function SuggestionsWorker(instance_id) {
 
 	function getInnerAddress(parent) {
 		var l = parent.childNodes;
-		return l[1].innerText + ' ' + l[2].innerText;
-		//return parent.innerText;
+		return l[1].textContent + ' ' + l[2].textContent;
+		//return parent.textContent;
 		//return parent.innerHTML;
 	}
 	  	
@@ -345,7 +346,7 @@ function SuggestionsWorker(instance_id) {
 				//console.log('diff.length=' + diff.length);
 				var pacContainer = diff[0];
 				me.pacContainer = pacContainer;
-				document.body.removeEventListener(docDOMSubtreeModifiedListener);
+				document.body.removeEventListener('DOMSubtreeModified', docDOMSubtreeModifiedListener);
 				pacContainer.addEventListener('DOMSubtreeModified', getPacContianerDOMSubtreeModifiedListener(function(suggestions) {
 					if (me.query) { 
 						me.suggestions = suggestions;

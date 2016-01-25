@@ -1,6 +1,7 @@
 var Promise = require('promise');
 var uuid = require('node-uuid');
-var EventEmitter = require('events');
+var events = require('events');
+var EventEmitter = (events.EventEmitter ? events.EventEmitter : events);	// to support older versions of node js
 
 function SuggestionEngine () {
 	var __this = this;
