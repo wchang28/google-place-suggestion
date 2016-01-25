@@ -75,6 +75,8 @@ var __workerId = null;
 var __startupInitializationCompleted = false;
 var worker = null;
 
+var EXTRACTION_TIMEOUT_MS = 1000;
+
 var handlersGetter = (function() {
 	var __readyResolver = null;
 	var TIMEOUT_MS = 5000;
@@ -183,7 +185,7 @@ source.onmessage = function(event) {
 			query.resolve = resolve;
 			setTimeout(function() {
 				reject('query timeout');
-			}, 1500);
+			}, EXTRACTION_TIMEOUT_MS+100);
 		});
 		p.then(function(suggestions) {
 			console.log(JSON.stringify(suggestions));
@@ -379,7 +381,7 @@ function SuggestionsWorker(instance_id) {
 				var suggestions = (me.suggestions ? me.suggestions: []);
 				me.resolveQuery(suggestions);
 			}
-		}, 500);
+		}, EXTRACTION_TIMEOUT_MS);
 	};
 	this.isRunningQuery = function() {return (me.query ? true : false);};
 }
