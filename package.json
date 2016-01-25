@@ -11,7 +11,8 @@
   "scripts": {
     "bundle": "browserify -t [ babelify --presets [ react es2015] ] .\\browserify\\main.js -o .\\public\\js\\bundle.js",
     "start": "node app.js",
-	"test": "node ./test/test_query.js"
+	"test": "node ./test/test_query.js",
+	"test_admin": "node ./test/test_admin.js"
   },
   "repository": {
     "type": "git",
