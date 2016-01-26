@@ -7,6 +7,8 @@ var app = express();
 var events = require('events');
 var EventEmitter = (events.EventEmitter ? events.EventEmitter : events);	// to support older versions of node js
 
+app.set("jsonp callback", true);
+
 var suggestionEngine = new SuggestionEngine();
 var eventSource = new EventEmitter();
 
@@ -16,7 +18,7 @@ suggestionEngine.onChange = function(o) {
 	console.log('=============================');
 	console.log(JSON.stringify(o));
 	console.log('=============================');
-	eventSource.emit({event: 'STATES', states: o});
+	eventSource.emit('event', {event: 'STATES', states: o});
 }
 
 app.use(function(req, res, next) {
@@ -40,6 +42,7 @@ app.use('/bower_components', express.static(path.join(__dirname, 'bower_componen
 app.use('/client', clientRoute);
 app.use('/worker_api', workerApiRoute);
 app.use('/admin_api', adminApiRoute);
+app.use('/admin', express.static(path.join(__dirname, 'admin')));
 
 var server = http.createServer(app);
 

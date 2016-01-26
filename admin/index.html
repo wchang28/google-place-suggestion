@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<title>Suggestion Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/bower_components/w3-css/css/w3.css">
+<script>
+	var __initStates = null;
+	function init(states) {
+		//console.log(JSON.stringify(states));
+		__initStates = states;
+	}
+</script>
+<script src="/admin_api/server_states/?callback=init"></script>
+<body>
+
+<div id="content"></div>
+<script src="js/bundle.js"></script>
+</body>
+</html> 

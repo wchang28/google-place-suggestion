@@ -44,8 +44,9 @@ function SuggestionEngine () {
 		var __queue = [];
 		this.enqueue = function(query) {
 			__queue.push(query);
-			dispatchEnqueued(query);
 			dispatchChange();
+			dispatchEnqueued(query);
+			
 		};
 		this.dequeue = function(maxToDequeue) {
 			if (maxToDequeue === 0 || __queue.length === 0)

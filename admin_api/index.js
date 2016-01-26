@@ -1,4 +1,4 @@
-// route /worker_api
+// route /admin_api
 var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
@@ -8,7 +8,9 @@ router.use(bodyParser.json({'limit': '100mb'}));
 
 // sse messaging
 router.get('/event_stream', sse(function(req, res) {
-	var listener = function(event) {res.sseSend(event);}
+	var listener = function(event) {
+		res.sseSend(event);
+	}
 	router.eventSource.addListener('event', listener);
 	return listener;	
 }, function(req, res, listener) {
