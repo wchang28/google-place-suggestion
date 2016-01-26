@@ -34,6 +34,11 @@ var AdminApp = React.createClass({
 				React.createElement(
 					'td',
 					null,
+					(i + 1).toString()
+				),
+				React.createElement(
+					'td',
+					null,
 					worker.id
 				),
 				React.createElement(
@@ -100,6 +105,11 @@ var AdminApp = React.createClass({
 							React.createElement(
 								'tr',
 								null,
+								React.createElement(
+									'th',
+									null,
+									'#'
+								),
 								React.createElement(
 									'th',
 									null,

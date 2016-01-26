@@ -13,17 +13,19 @@ var suggestionEngine = new SuggestionEngine();
 var eventSource = new EventEmitter();
 
 suggestionEngine.onChange = function(o) {
+	/*
 	console.log('');
 	console.log('server states');
 	console.log('=============================');
 	console.log(JSON.stringify(o));
 	console.log('=============================');
+	*/
 	eventSource.emit('event', {event: 'STATES', states: o});
 }
 
 app.use(function(req, res, next) {
 	var req_address = req.connection.remoteAddress;
-	console.log('incoming request from ' + req_address + ', path='+ req.path);
+	//console.log('incoming request from ' + req_address + ', path='+ req.path);
 	
 	next();
 });

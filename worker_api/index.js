@@ -29,7 +29,7 @@ router.get('/worker_ready', function(req, res) {
 
 router.post('/query_result', function(req, res) {
 	var q = req.body;
-	console.log('worker {' + q.workerId + '} returns result ' + JSON.stringify(q.suggestions));
+	//console.log('worker {' + q.workerId + '} returns result ' + JSON.stringify(q.suggestions));
 	router.suggestionEngine.workerResolveQuery(q.workerId, q.queryId, q.suggestions);
 	res.json({});
 });
