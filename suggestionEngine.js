@@ -81,7 +81,7 @@ function SuggestionEngine () {
 			query.resolve = resolve;
 			setTimeout(function() {
 				reject('query timeout');
-			}, 1000);
+			}, 5000);
 		});
 		p.then(function(suggestions) {
 			outstandingQueries.remove(query.id);
