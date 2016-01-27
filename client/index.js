@@ -11,7 +11,7 @@ router.get('/query', function(req, res) {
 	var queryString = url_parts.query.queryString;
 	console.log('queryString='+queryString);
 	router.suggestionEngine.sumbitQuery(queryString, function(suggestions) {
-		res.json({suggestions: suggestions});
+		res.json(suggestions);
 	});
 });
 
