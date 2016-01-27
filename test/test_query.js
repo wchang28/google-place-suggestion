@@ -6,12 +6,12 @@ var queryString = '8803 Naomi';
 
 /*
 var start = new Date().getTime();
-$.get('http://127.0.0.1/client/query/?queryString='+encodeURIComponent(queryString), function(data){
+$.get('http://127.0.0.1/client/query/?queryString='+encodeURIComponent(queryString), function(suggestions){
 	var end = new Date().getTime();
 	console.log('');
 	console.log('query=' + queryString);
 	console.log('duration (ms):' +(end-start).toString());
-	console.log(data);
+	console.log(suggestions);
 });
 */
 
@@ -25,14 +25,14 @@ setInterval(function() {
 		starts.push(start);
 		var q = queryString.substr(0, ++counter);
 		queries.push(q);
-		$.get('http://127.0.0.1/client/query/?queryString='+encodeURIComponent(q), function(data){
+		$.get('http://127.0.0.1/client/query/?queryString='+encodeURIComponent(q), function(suggestions){
 			var end = new Date().getTime();
 			var start = starts[received];
 			var q = queries[received];
 			console.log('');
 			console.log('query=' + q);
 			console.log('duration (ms):' +(end-start).toString());
-			console.log(data);
+			console.log(suggestions);
 			received++;
 			if (received == queryString.length)
 				process.exit(0);
