@@ -27,7 +27,7 @@ var AdminApp = React.createClass({
 		return (
 		<div>
 			<header className="w3-container w3-teal">
-				<h1>Suggestion Admin</h1>
+				<h1>Google Place Suggestion Controller Admin</h1>
 			</header>
 			<div className="w3-container w3-margin-top">
 				<div className="w3-card-2">
