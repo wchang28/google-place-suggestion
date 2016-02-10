@@ -112,6 +112,9 @@ function SuggestionEngine () {
 				,busy: false
 				,eventSource: new EventEmitter()
 			};
+			worker.pingInterval = setInterval(function() {
+				worker.eventSource.emit('event', {event:'PING'});
+			}, 15000);
 			__workers[workerId] = worker;
 			count++;
 			worker.eventSource.addListener('event', eventListener);
@@ -169,6 +172,7 @@ function SuggestionEngine () {
 			var worker = __workers[workerId];
 			if (worker) {
 				worker.eventSource.removeListener('event', eventListener);
+				clearInterval(worker.pingInterval);
 				delete __workers[workerId];
 				count--;
 				dispatchWorkerRemoved(worker);

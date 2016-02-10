@@ -178,8 +178,9 @@ source.onmessage = function(event) {
     if (o.event === 'WORKER_ID') {
 		console.log('worker received an id of ' + o.id + ' from the server');
 		onWorkerIdReceived(o.id);
-	}
-	else if (o.event === 'QUERY') {
+	} else if (o.event === 'PING') {
+		console.log('worker got a >>> PING <<< from the server');
+	} else if (o.event === 'QUERY') {
 		console.log('I got a query !!!');
 		var start = new Date().getTime();
 		var query = o.query;
