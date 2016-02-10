@@ -6,6 +6,13 @@ var sse = require('sse-express');
 
 router.use(bodyParser.json({'limit': '100mb'}));
 
+router.use(function (req, res, next) {
+	res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+	res.header('Expires', '-1');
+	res.header('Pragma', 'no-cache');
+	next();
+});
+
 // sse messaging
 router.get('/event_stream', sse(function(req, res) {
 	var listener = function(event) {
