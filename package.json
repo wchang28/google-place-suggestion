@@ -25,6 +25,7 @@
 	"eventsource-polyfill": "^0.9.6",
     "express": "^4.13.3",
 	"jquery-no-dom": "git+https://github.com/wchang28/jquery-no-dom.git",
+	"no-cache-express": "git+https://github.com/wchang28/no-cache-express.git",
     "node-uuid": "^1.4.7",
     "promise": "^7.1.1",
     "react": "^0.14.3",

@@ -4,13 +4,7 @@ var router = express.Router();
 var bodyParser = require('body-parser');
 
 router.use(bodyParser.json({'limit': '100mb'}));
-
-router.use(function (req, res, next) {
-	res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-	res.header('Expires', '-1');
-	res.header('Pragma', 'no-cache');
-	next();
-});
+router.use(require('no-cache-express'));
 
 router.get('/query', function(req, res) {
 	var queryString = req.query.q;
