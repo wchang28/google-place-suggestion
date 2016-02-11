@@ -1,5 +1,4 @@
 // route /worker_api
-var url = require('url');
 var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser');
@@ -27,8 +26,7 @@ router.get('/event_stream', sse(function(req, res) {
 }));
 
 router.get('/worker_ready', function(req, res) {
-	var url_parts = url.parse(req.url, true);
-	var workerId = url_parts.query.workerId;
+	var workerId = req.query.workerId;
 	console.log('worker {' + workerId + '} is reporting ready');
 	router.suggestionEngine.setWorkerReady(workerId);
 	res.json({});
