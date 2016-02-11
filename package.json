@@ -9,7 +9,9 @@
   "main": "app.js",
   "license": "MIT",
   "scripts": {
-    "bundle": "browserify -t [ babelify --presets [ react es2015] ] .\\browserify\\admin_app.js -o .\\admin\\js\\bundle.js",
+    "build": "./node_modules/.bin/babel --presets react,es2015 ./src/babel -d ./src/js",
+    "bundle": "./node_modules/.bin/browserify ./src/js/admin_app.js -o ./admin/js/bundle.js",
+	"build_all": "build_all.bat",
     "start": "node app.js",
 	"test": "node ./test/test_query.js",
 	"test_admin": "node ./test/test_admin.js"
@@ -30,6 +32,7 @@
     "sse-express": "git+https://github.com/wchang28/sse-express.git"
   },
   "devDependencies": {
+    "babel-cli": "^6.4.5",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-react": "^6.3.13",
     "babelify": "^7.2.0",
