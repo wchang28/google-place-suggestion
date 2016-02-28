@@ -189,6 +189,7 @@ source.onmessage = function(event) {
 		onWorkerIdReceived(o.id);
 	} else if (o.event === 'PING') {
 		console.log('worker got a >>> PING <<< from the server');
+		ackPing();
 	} else if (o.event === 'QUERY') {
 		console.log('I got a query !!!');
 		var start = new Date().getTime();
