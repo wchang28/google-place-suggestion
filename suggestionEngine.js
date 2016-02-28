@@ -154,7 +154,7 @@ function SuggestionEngine () {
 				dispatchWorkerNotBusy(worker);
 			}
 		};
-		this.onWorkerPingAck(workerId, ackTime) {
+		this.onWorkerPingAck = function(workerId, ackTime) {
 			var worker = __workers[workerId];
 			if (worker) {
 				worker.ackTime = ackTime;
@@ -221,7 +221,7 @@ function SuggestionEngine () {
 		workers.setWorkerNotBusy(workerId);
 		outstandingQueries.resolveQuery(queryId, suggestions);
 	};
-	this.onWorkerPingAck(workerId, ackTime) {workers.onWorkerPingAck(workerId, ackTime);};
+	this.onWorkerPingAck = function(workerId, ackTime) {workers.onWorkerPingAck(workerId, ackTime);};
 	
 	function randomlyChooseWorkers(workers, numToPick) {
 		var arr = [];
