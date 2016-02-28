@@ -24,7 +24,7 @@
     "body-parser": "^1.14.1",
 	"eventsource-polyfill": "^0.9.6",
     "express": "^4.13.3",
-    "json-api-router": "git+https://github.com/wchang28/json-api-router.git"
+    "json-api-router": "git+https://github.com/wchang28/json-api-router.git",
 	"jquery-no-dom": "git+https://github.com/wchang28/jquery-no-dom.git",
 	"no-cache-express": "git+https://github.com/wchang28/no-cache-express.git",
     "node-uuid": "^1.4.7",
