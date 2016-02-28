@@ -170,7 +170,7 @@ function returnQuery(query, suggestions) {
 }
 
 function ackPing() {
-	$.getJSON('/worker_api/ack_ping', {workerId: workerId})
+	$.getJSON('/worker_api/ack_ping', {workerId: __workerId})
 	.done(function() {
 		console.log( "PING ack success" );
 	}).fail(function(err) {
