@@ -193,7 +193,7 @@ function SuggestionEngine () {
 			var ret = [];
 			for (var workerId in __workers) {
 				var worker = __workers[workerId];
-				ret.push({id: worker.id, ready: worker.ready, busy: worker.busy, ackTime: ackTime.toUTCString()});
+				ret.push({id: worker.id, ready: worker.ready, busy: worker.busy, ackTime: (ackTime? ackTime.toUTCString() : '')});
 			}
 			return ret;
 		};
