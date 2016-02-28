@@ -22,7 +22,7 @@ var AdminApp = React.createClass({
 		var workers = this.state.states.workers;
 		var queue = this.state.states.queue;
 		var outstanding = this.state.states.outstanding;
-		var workerRow = (worker, i) => <tr key={i}><td>{(i+1).toString()}</td><td>{worker.id}</td><td>{worker.ready.toString()}</td><td>{worker.busy.toString()}</td></tr>;
+		var workerRow = (worker, i) => <tr key={i}><td>{(i+1).toString()}</td><td>{worker.id}</td><td>{worker.ready.toString()}</td><td>{worker.busy.toString()}</td><td>{worker.ackTime}</td></tr>;
 		var queryRow = (query, i) => <tr key={i}><td>{query.id}</td><td>{query.queryString}</td></tr>;
 		return (
 		<div>
@@ -41,6 +41,7 @@ var AdminApp = React.createClass({
 								<th>Id</th>
 								<th>Ready</th>
 								<th>Busy</th>
+								<th>ACK Time</th>
 							</tr>
 						</thead>
 						<tbody>{workers.map(workerRow)}</tbody>

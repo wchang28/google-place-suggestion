@@ -16,7 +16,9 @@ router.get('/event_stream', sse(function(req, res) {
 
 router.get('/ack_ping', function(req, res) {
 	var workerId = req.query.workerId;
-	console.log('worker {' + workerId + '} >>> PING ACK <<< ' + new Date().toUTCString());
+	var ackTime = new Date();
+	console.log('worker {' + workerId + '} >>> PING ACK <<< ' + ackTime.toUTCString());
+	router.suggestionEngine.onWorkerPingAck(workerId, ackTime);
 	res.json({});
 });
 

@@ -111,6 +111,7 @@ function SuggestionEngine () {
 				,ready: false
 				,busy: false
 				,eventSource: new EventEmitter()
+				,ackTime: null
 			};
 			worker.pingInterval = setInterval(function() {
 				worker.eventSource.emit('event', {event:'PING'});
@@ -153,6 +154,13 @@ function SuggestionEngine () {
 				dispatchWorkerNotBusy(worker);
 			}
 		};
+		this.onWorkerPingAck(workerId, ackTime) {
+			var worker = __workers[workerId];
+			if (worker) {
+				worker.ackTime = ackTime;
+				dispatchChange();
+			}				
+		};
 		this.getAllAvailable = function() {
 			var ret = [];
 			for (var workerId in __workers) {
@@ -185,7 +193,7 @@ function SuggestionEngine () {
 			var ret = [];
 			for (var workerId in __workers) {
 				var worker = __workers[workerId];
-				ret.push({id: worker.id, ready: worker.ready, busy: worker.busy});
+				ret.push({id: worker.id, ready: worker.ready, busy: worker.busy, ackTime: ackTime.toUTCString()});
 			}
 			return ret;
 		};
@@ -213,6 +221,7 @@ function SuggestionEngine () {
 		workers.setWorkerNotBusy(workerId);
 		outstandingQueries.resolveQuery(queryId, suggestions);
 	};
+	this.onWorkerPingAck(workerId, ackTime) {workers.onWorkerPingAck(workerId, ackTime);};
 	
 	function randomlyChooseWorkers(workers, numToPick) {
 		var arr = [];
