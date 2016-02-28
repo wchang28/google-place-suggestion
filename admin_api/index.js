@@ -1,11 +1,6 @@
 // route /admin_api
-var express = require('express');
-var router = express.Router();
-var bodyParser = require('body-parser');
+var router = require('json-api-router')();
 var sse = require('sse-express');
-
-router.use(bodyParser.json({'limit': '100mb'}));
-router.use(require('no-cache-express'));
 
 // sse messaging
 router.get('/event_stream', sse(function(req, res) {

@@ -1,11 +1,6 @@
 // route /worker_api
-var express = require('express');
-var router = express.Router();
-var bodyParser = require('body-parser');
+var router = require('json-api-router')();
 var sse = require('sse-express');
-
-router.use(bodyParser.json({'limit': '100mb'}));
-router.use(require('no-cache-express'));;
 
 // sse messaging
 router.get('/event_stream', sse(function(req, res) {
@@ -18,6 +13,12 @@ router.get('/event_stream', sse(function(req, res) {
 }, function(req, res, o) {
 	router.suggestionEngine.removeWorker(o.workerId, o.listener);
 }));
+
+router.get('/ack_ping', function(req, res) {
+	var workerId = req.query.workerId;
+	console.log('worker {' + workerId + '} >>> PING ACK <<< ' + new Date().toString());
+	res.json({});
+});
 
 router.get('/worker_ready', function(req, res) {
 	var workerId = req.query.workerId;

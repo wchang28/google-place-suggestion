@@ -169,6 +169,15 @@ function returnQuery(query, suggestions) {
 	});
 }
 
+function ackPing() {
+	$.getJSON('/worker_api/ack_ping', {workerId: workerId})
+	.done(function() {
+		console.log( "PING ack success" );
+	}).fail(function(err) {
+		console.error( "!!! PING ack failed:" + JSON.stringify(err));
+	});
+}
+
 var onWorkerIdReceived = handlersGetter.getOnWorkerIdReceivedHandler(onWorkerReady);
 var onWorkerInternalInitializationComplete = handlersGetter.getOnWorkerInternalInitializationCompleteHandler(onWorkerReady);
 
