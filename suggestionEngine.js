@@ -35,6 +35,8 @@ function SuggestionEngine () {
 		};
 	}
 	var outstandingQueries = new OutstandingQueries();
+    
+    function query2JSON(query) {return {id: query.id, queryString: query.queryString, position: query.position};}
 			
 	function Queue() {
 		var me = this;
@@ -64,18 +66,19 @@ function SuggestionEngine () {
 			var ret = [];
 			for (var i in __queue) {
 				var query = __queue[i];
-				ret.push({id: query.id, queryString: query.queryString});
+				ret.push(query2JSON(query));
 			}
 			return ret;
 		};
 	}
 	var queue = new Queue();
 		
-	this.sumbitQuery = function(queryString, onDone) {
+	this.sumbitQuery = function(queryString, position, onDone) {
 		var queryId = uuid.v4();
 		var query = {
 			id: queryId
 			,queryString: queryString
+            ,position: position
 		};
 		var p = new Promise(function(resolve, reject) {
 			query.resolve = resolve;
@@ -236,7 +239,7 @@ function SuggestionEngine () {
 	
 	function dispatchQueryToWorker(worker, query) {
 		workers.setWorkerBusy(worker.id);
-		worker.eventSource.emit('event', {event:'QUERY', query: {queryString: query.queryString, id: query.id}});
+		worker.eventSource.emit('event', {event:'QUERY', query: query2JSON(query)});
 	}
 
 	function dispatchQueriesIfNecessary() {

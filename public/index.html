@@ -191,9 +191,9 @@ source.onmessage = function(event) {
 		console.log('worker got a >>> PING <<< from the server');
 		ackPing();
 	} else if (o.event === 'QUERY') {
-		console.log('I got a query !!!');
-		var start = new Date().getTime();
 		var query = o.query;
+        console.log('I got a query !!! query=' + JSON.stringify(query));
+        var start = new Date().getTime();
 		var p = new Promise(function(resolve, reject) {
 			query.resolve = resolve;
 			setTimeout(function() {
@@ -213,27 +213,33 @@ source.onmessage = function(event) {
 	}
 };
 
-function getGeoLocateHandler(autocomplete) {
-// [START region_geolocation]
-// Bias the autocomplete object to the user's geographical location,
-// as supplied by the browser's 'navigator.geolocation' object.
-function geolocate() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      var geolocation = {
+function setAutocompleteBonds(autocomplete, position) {
+    var geolocation = {
         lat: position.coords.latitude,
         lng: position.coords.longitude
-      };
-      var circle = new google.maps.Circle({
+    };
+    var circle = new google.maps.Circle({
         center: geolocation,
         radius: position.coords.accuracy
-      });
-      autocomplete.setBounds(circle.getBounds());
     });
-  }
+    autocomplete.setBounds(circle.getBounds());    
 }
-// [END region_geolocation]
-return geolocate;
+
+function getInputCtrlOnFocusHandler(autocomplete, position) {
+    if (position) {
+        return (function() {
+             setAutocompleteBonds(autocomplete, position);
+        });
+    } else {
+        function geolocate() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    setAutocompleteBonds(autocomplete, position);
+                });
+            }
+        }
+        return geolocate;
+    }
 }
 
 function SuggestionsWorker(instance_id) {
@@ -327,7 +333,7 @@ function SuggestionsWorker(instance_id) {
 	this.instance_id = instance_id;
 	this.inputControl = createInputControl(instance_id);
 	this.autocomplete = new google.maps.places.Autocomplete(this.inputControl, {types: ['geocode']});
-	this.inputControl.onfocus = getGeoLocateHandler(this.autocomplete);
+	this.inputControl.onfocus = getInputCtrlOnFocusHandler(this.autocomplete);
 
 	function getInnerAddress(parent) {
 		var l = parent.childNodes;
@@ -376,19 +382,20 @@ function SuggestionsWorker(instance_id) {
 	
 	document.body.addEventListener('DOMSubtreeModified', docDOMSubtreeModifiedListener);
   
-	this.triggerQuery = function (queryString) {
+	this.triggerQuery = function (queryString, position) {
 		me.inputControl.value = queryString;
+        me.inputControl.onfocus = getInputCtrlOnFocusHandler(this.autocomplete, position);
 		simulateFocus(me.inputControl);
 	};
 	this.resolveQuery = function(suggestions) {
-		me.triggerQuery(' ');
+		me.triggerQuery(' ', null);
 		me.query.resolve(suggestions);	// resolve the query
 		me.query = null;
 		me.suggestions = null;
 	};
 	this.runQuery = function (query) {
 		me.query = query;
-		me.triggerQuery(query.queryString);
+		me.triggerQuery(query.queryString, (query.position ? query.position : null));
 		setTimeout(function() {
 			console.log('> suggestions inspection pulling timeout <');
 			if (me.query) {
