@@ -384,7 +384,7 @@ function SuggestionsWorker(instance_id) {
   
 	this.triggerQuery = function (queryString, position) {
 		me.inputControl.value = queryString;
-        me.inputControl.onfocus = getInputCtrlOnFocusHandler(this.autocomplete, position);
+        //me.inputControl.onfocus = getInputCtrlOnFocusHandler(this.autocomplete, position);
 		simulateFocus(me.inputControl);
 	};
 	this.resolveQuery = function(suggestions) {
