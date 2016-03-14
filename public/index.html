@@ -193,7 +193,7 @@ source.onmessage = function(event) {
 		ackPing();
 	} else if (o.event === 'QUERY') {
 		var query = o.query;
-        console.log('I got a query !!! query=' + JSON.stringify(query));
+        console.log('I got a query :-) query=' + JSON.stringify(query));
         var start = new Date().getTime();
 		var p = new Promise(function(resolve, reject) {
 			query.resolve = resolve;
@@ -203,9 +203,8 @@ source.onmessage = function(event) {
 		});
 		p.then(function(suggestions) {
 			console.log(JSON.stringify(suggestions));
-			console.log('query completed');
 			var end = new Date().getTime();
-			console.log('duration (ms):' +(end-start).toString());
+			console.log('query completed. duration (ms):' + (end-start).toString());
 			returnQuery(query, suggestions);
 		}).catch(function(err) {
 			returnQuery(query, []);
