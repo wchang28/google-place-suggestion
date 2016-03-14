@@ -364,7 +364,7 @@ function SuggestionsWorker(instance_id) {
 	this.instance_id = instance_id;
 	this.inputControl = createInputControl(instance_id);
 	this.autocomplete = new google.maps.places.Autocomplete(this.inputControl, {types: ['geocode']});
-	this.inputControl.onfocus = getInputCtrlOnFocusHandler(this.autocomplete);
+	this.inputControl.onfocus = getInputCtrlOnFocusHandler(this.autocomplete, null);
 
 	function getInnerAddress(parent) {
 		var l = parent.childNodes;
@@ -415,7 +415,7 @@ function SuggestionsWorker(instance_id) {
   
 	this.triggerQuery = function (queryString, position) {
 		me.inputControl.value = queryString;
-        //me.inputControl.onfocus = getInputCtrlOnFocusHandler(me.autocomplete, position);
+		me.inputControl.onfocus = getInputCtrlOnFocusHandler(me.autocomplete, position);
 		simulateFocus(me.inputControl);
 	};
 	this.resolveQuery = function(suggestions) {
