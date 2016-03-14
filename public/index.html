@@ -163,11 +163,11 @@ function returnQuery(query, suggestions) {
 	$.ajax('/worker_api/query_result', {
 		data : JSON.stringify(q),
 		contentType : 'application/json',
-		type : 'POST'
-		}
-	,function() {
-		console.log( "success" );
-	});
+		type : 'POST',
+		success: function() {
+				console.log( "query returned successfully" );
+			}
+		});
 }
 
 function ackPing() {
