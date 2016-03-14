@@ -7,6 +7,8 @@ function SuggestionEngine () {
 	var __this = this;
 	function dispatchChange(o) {if (typeof __this.onChange === 'function') __this.onChange(o);}
 	
+    function query2JSON(query) {return {id: query.id, queryString: query.queryString, position: query.position};}
+    
 	function OutstandingQueries () {
 		var me = this;
 		function dispatchChange() {if (typeof me.onChange === 'function') me.onChange();}
@@ -29,15 +31,13 @@ function SuggestionEngine () {
 			var ret = [];
 			for (var id in __outstanding) {
 				var query = __outstanding[id];
-				ret.push({id: query.id, queryString: query.queryString});
+				ret.push(query2JSON(query));
 			}
 			return ret;
 		};
 	}
 	var outstandingQueries = new OutstandingQueries();
-    
-    function query2JSON(query) {return {id: query.id, queryString: query.queryString, position: query.position};}
-			
+    			
 	function Queue() {
 		var me = this;
 		function dispatchChange() {if (typeof me.onChange === 'function') me.onChange();}
