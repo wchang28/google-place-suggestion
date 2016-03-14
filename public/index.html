@@ -78,7 +78,7 @@ var __startupInitializationCompleted = false;
 var worker = null;
 var __workerPosition = null;
 
-var EXTRACTION_TIMEOUT_MS = 2000;
+var EXTRACTION_TIMEOUT_MS = 4000;
 
 var handlersGetter = (function() {
 	var __readyResolver = null;
@@ -228,18 +228,12 @@ function setAutocompleteBonds(autocomplete, position) {
 
 function position2JSON(position) {
 	var pos = {
-		coords: {}
-		,timestamp: position.timestamp
+		coords: {
+			latitude: position.coords.latitude
+			,longitude: position.coords.longitude
+			,accuracy: position.coords.accuracy
+		}
 	};
-	pos.coords.latitude = position.coords.latitude;
-	pos.coords.longitude = position.coords.longitude;
-	pos.coords.accuracy = position.coords.accuracy;
-	/*
-	if (typeof position.coords.altitude === 'number') pos.coords.altitude = position.coords.altitude;
-	if (typeof position.coords.altitudeAccuracy === 'number') pos.coords.altitudeAccuracy = position.coords.altitudeAccuracy;
-	if (typeof position.coords.heading === 'number') pos.coords.heading = position.coords.heading;
-	if (typeof position.coords.speed === 'number') pos.coords.speed = position.coords.speed;
-	*/
 	return pos;
 }
 
@@ -425,7 +419,7 @@ function SuggestionsWorker(instance_id) {
 	};
 	this.runQuery = function (query) {
 		me.query = query;
-		me.triggerQuery(query.queryString, (query.position ? query.position : null));
+		me.triggerQuery(query.q, (query.position ? query.position : null));
 		setTimeout(function() {
 			console.log('> suggestions inspection pulling timeout <');
 			if (me.query) {

@@ -23,7 +23,7 @@ var AdminApp = React.createClass({
 		var queue = this.state.states.queue;
 		var outstanding = this.state.states.outstanding;
 		var workerRow = (worker, i) => <tr key={i}><td>{(i+1).toString()}</td><td>{worker.id}</td><td>{worker.ready.toString()}</td><td>{worker.busy.toString()}</td><td>{worker.ackTime}</td></tr>;
-		var queryRow = (query, i) => <tr key={i}><td>{query.id}</td><td>{query.queryString}</td><td>{JSON.stringify(query.position)}</td></tr>;
+		var queryRow = (query, i) => <tr key={i}><td>{query.id}</td><td>{query.q}</td><td>{JSON.stringify(query.position)}</td></tr>;
 		return (
 		<div>
 			<header className="w3-container w3-teal">

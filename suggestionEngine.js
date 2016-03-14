@@ -7,7 +7,7 @@ function SuggestionEngine () {
 	var __this = this;
 	function dispatchChange(o) {if (typeof __this.onChange === 'function') __this.onChange(o);}
 	
-    function query2JSON(query) {return {id: query.id, queryString: query.queryString, position: query.position};}
+    function query2JSON(query) {return {id: query.id, q: query.q, position: query.position};}
     
 	function OutstandingQueries () {
 		var me = this;
@@ -77,7 +77,7 @@ function SuggestionEngine () {
 		var queryId = uuid.v4();
 		var query = {
 			id: queryId
-			,queryString: queryString
+			,q: queryString
             ,position: position
 		};
 		var p = new Promise(function(resolve, reject) {
