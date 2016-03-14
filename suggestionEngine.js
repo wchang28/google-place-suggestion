@@ -87,9 +87,11 @@ function SuggestionEngine () {
 			}, 5000);
 		});
 		p.then(function(suggestions) {
+			console.log('query completed. queryId=' + query.id);
 			outstandingQueries.remove(query.id);
 			if (typeof onDone === 'function') onDone(suggestions);
 		}).catch(function(err) {
+			console.log(err);
 			outstandingQueries.remove(query.id);
 			if (typeof onDone === 'function') onDone([]);
 		});
