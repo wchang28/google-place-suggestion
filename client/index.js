@@ -7,7 +7,7 @@ router.post('/query', function(req, res) {
     var position = (data.position ? data.position : null);
 	console.log('incoming query: ' + JSON.stringify(data));
 	router.suggestionEngine.sumbitQuery(queryString, position, function(suggestions) {
-		console.log('returning suggesting for query="' + queryString + '", suggestions='+ JSON.stringify(suggestions));
+		console.log('"' + queryString + '" ==> '+ JSON.stringify(suggestions));
 		res.json(suggestions);
 	});
 });
