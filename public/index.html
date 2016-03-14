@@ -76,6 +76,7 @@
 var __workerId = null;
 var __startupInitializationCompleted = false;
 var worker = null;
+var __workerPosition = null;
 
 var EXTRACTION_TIMEOUT_MS = 2000;
 
@@ -258,9 +259,16 @@ function getGeolocation(onDone) {
 function getInputCtrlOnFocusHandler(autocomplete, position) {
     if (position) {
         return (function() {setAutocompleteBonds(autocomplete, position);});
-    } else {
+    } else {	// position is null
         return (function() {
-			getGeolocation(function(position) {setAutocompleteBonds(autocomplete, position);});
+			if (__workerPosition)
+				setAutocompleteBonds(autocomplete, __workerPosition);
+			else {
+				getGeolocation(function(position) {
+					__workerPosition = position;
+					setAutocompleteBonds(autocomplete, __workerPosition);
+				});
+			}
         });
     }
 }
