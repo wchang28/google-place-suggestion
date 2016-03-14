@@ -87,7 +87,7 @@ function SuggestionEngine () {
 			}, 5000);
 		});
 		p.then(function(suggestions) {
-			console.log('query completed. queryId=' + query.id);
+			console.log('query completed. queryId=' + query.id + ',suggestions=' + JSON.stringify(suggestions));
 			outstandingQueries.remove(query.id);
 			if (typeof onDone === 'function') onDone(suggestions);
 		}).catch(function(err) {
